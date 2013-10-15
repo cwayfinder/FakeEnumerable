@@ -1,5 +1,5 @@
 require 'rspec'
-require_relative 'SortedList.rb'
+require_relative 'sorted_list.rb'
 
 describe SortedList do
 
@@ -28,5 +28,44 @@ describe SortedList do
       @list.reduce(-10) { |s, e| s + e }.should eq (59)
     end
   end
+
+
+
+  describe "FakeEnumerator" do
+    before do
+      @list = SortedList.new
+      @list << 3 << 13 << 42 << 4 << 7
+    end
+
+    it "supports next" do
+      enum = @list.each
+
+      enum.next.should eq(3)
+      enum.next.should eq(4)
+      enum.next.should eq(7)
+      enum.next.should eq(13)
+      enum.next.should eq(42)
+
+      ->{ enum.next }.should raise_error(StopIteration)
+    end
+
+    it "supports rewind" do
+      enum = @list.each
+
+      4.times { enum.next }
+      enum.rewind
+
+      2.times { enum.next }
+      enum.next.should eq(7)
+    end
+
+    it "supports with_index" do
+      enum     = @list.map
+      expected = ["0. 3", "1. 4", "2. 7", "3. 13", "4. 42"]
+
+      enum.with_index { |e, i| "#{i}. #{e}" }.should eq(expected)
+    end
+  end
+
 
 end
